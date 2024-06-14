@@ -51,7 +51,7 @@ body {
     position: relative;
 }
 
-#cart-count {
+#product-count {
     position: absolute;
     font-size: 8px;
     left: 25%;
