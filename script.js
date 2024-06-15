@@ -204,23 +204,31 @@ function cartModifier() {
 var flag= false;
 var decrease;
 function addToCart() {
-  var keyExists;
+  var keyExists= false;
   var objIdx;
   document.querySelector('#products').addEventListener('click', function (dets) {
     if (dets.target.classList.contains('add-to-cart')) {
+      // console.log("right after event",cartProducts)
       flag= true;
       i = Number(dets.target.dataset.index);
-      for (let j = 0; j < cartProducts.length; j++) {
-        if (cartProducts[j].index == i) {
-          keyExists = true
-          objIdx = j;
-          break;
-        }
-        else {
-          keyExists = false
+      if(cartProducts.length>0){
+        for (let j = 0; j < cartProducts.length; j++) {
+          if (cartProducts[j].index == i) {
+            keyExists = true
+            objIdx = j;
+            break;
+          }
+          else {
+            keyExists = false
+          }
         }
       }
+      else{
+        keyExists= false
+      }
+      console.log(keyExists)
       if (keyExists) {
+        // console.log("inside if block",cartProducts)
         if (cartProducts[objIdx].quantity < 10) {
           let q = ++cartProducts[objIdx].quantity;
           document.querySelector(`#quan-${i}`).innerHTML = q;
@@ -250,9 +258,45 @@ function addToCart() {
         productCount++;
         updateProductCount(productCount);
         cartProducts.push({ 'index': i, 'price': products[i].price, 'quantity': quantity });
-        // console.log(cartProducts);
+        // console.log("after push else block", cartProducts);
+        cartProducts.forEach(product=>{
+          document.querySelector(`#dec-${product.index}`).addEventListener('click',
+            function(){
+              if(product.quantity==1){
+                --product.quantity
+                cartContent.removeChild(document.querySelector(`#pro-${product.index}`));
+                console.log(product.quantity)
+                cartProducts = cartProducts.filter(obj=> obj.index!== product.index);
+                productCount++;
+                // updateProductCount(productCount);
+              }
+              else if(product.quantity>1){
+                document.querySelector(`#quan-${product.index}`).innerHTML= --product.quantity;
+                console.log(product.quantity)
+                document.querySelector(`#price-${product.index}`).innerHTML = `$${product.quantity*product.price}`;
+                // updateCartValue(cartProducts)
+                // console.log(obj.quantity)
+              }
+            }
+          );
+          document.querySelector(`#inc-${product.index}`).addEventListener('click',
+            function(){
+              if(product.quantity<10){
+                document.querySelector(`#quan-${product.index}`).innerHTML= ++product.quantity;
+                console.log(product.quantity)
+                document.querySelector(`#price-${product.index}`).innerHTML = `$${product.quantity*product.price}`;
+                // updateCartValue(cartProducts)
+                // console.log(obj.quantity)
+              }
+              else{
+                alert("Quantity cannot exceed 10!")
+              }
+            }
+          );
+        })
       }
     }
   })
 }
 addToCart();
+
