@@ -151,15 +151,9 @@ function capitalizer(str) {
   var capitalizedStr = capitalizedArr.join(" ");
   return capitalizedStr;
 }
-function findIndexById(arr, id) {
-  for (var i = 0; i < arr.length; i++) {
-    if (arr[i].id === id) {
-      return i; // Return index if ID matches
-    }
-  }
-  return -1; // Return -1 if ID is not found
+function productFinder(array, targetIndex) {
+  return array.find(item => item.index === targetIndex);
 }
-
 // Main Functions
 function createProductElements() {
   var clutter = "";
@@ -173,9 +167,6 @@ function createProductElements() {
   });
   document.querySelector("#products").innerHTML = clutter;
 }
-createProductElements();
-
-// Funtion for clicking on cart button
 function cartToggler() {
   var flag = 0;
   document.querySelector('#cart-btn').addEventListener('click', function () {
@@ -189,52 +180,59 @@ function cartToggler() {
     }
   })
 }
+createProductElements();
 cartToggler();
 
-
-function updateProductCount(count){
+function updateCartValue(arr) {
+  let total = 0;
+  for (k = 0; k < arr.length; k++) {
+    total += (arr[k].price) * (arr[k].quantity);
+  }
+  // console.log(total)
+  document.querySelector("#total").innerHTML = total;
+}
+function updateProductCount(count) {
   document.querySelector("#product-count").innerHTML = count;
 }
-  var cartProducts=[];
-  var i, quantity;
-  var cart = [];
-  var prices = [];
-  var totalPrice;
-  var productCount = 0;
-  // var quantity;
+var cartProducts = [];
+var i, quantity;
+var productCount = 0;
+var cartContent = document.querySelector(".cart-content");
+function cartModifier() {
+  console.log("hei")
+}
+var flag= false;
+var decrease;
 function addToCart() {
   var keyExists;
   var objIdx;
-  var cartContent = document.querySelector(".cart-content");
   document.querySelector('#products').addEventListener('click', function (dets) {
     if (dets.target.classList.contains('add-to-cart')) {
+      flag= true;
       i = Number(dets.target.dataset.index);
-      for(let j=0; j<cartProducts.length; j++){
-        if(cartProducts[j].index==i){
-          keyExists= true
-          objIdx= j;
+      for (let j = 0; j < cartProducts.length; j++) {
+        if (cartProducts[j].index == i) {
+          keyExists = true
+          objIdx = j;
           break;
         }
-        else{
-          keyExists= false
+        else {
+          keyExists = false
         }
       }
-      // console.log(keyExists)
-      if(keyExists){
-        if(cartProducts[objIdx].quantity<10){
-          var q= ++cartProducts[objIdx].quantity;
+      if (keyExists) {
+        if (cartProducts[objIdx].quantity < 10) {
+          let q = ++cartProducts[objIdx].quantity;
           document.querySelector(`#quan-${i}`).innerHTML = q;
           // console.log(cartProducts)
-          prices.push(products[i].price);
-          // console.log(prices)
-          totalPrice = prices.reduce((curr, prev) => curr + prev);
-          document.querySelector("#total").innerHTML = totalPrice;
+          updateCartValue(cartProducts)
+          document.querySelector(`#price-${i}`).innerHTML = `$${q * cartProducts[objIdx].price}`;
         }
-        else{
+        else {
           alert("Quantity cannot exceed 10!");
         }
       }
-      else{
+      else {
         cartContent.innerHTML += `<div id="pro-${i}" class="added-product">
         <div class="product-info">
             <img src="${products[i].img}"
@@ -248,54 +246,13 @@ function addToCart() {
             <i id="dec-${i}" class="ri-subtract-line"></i><span id="quan-${i}">1</span><i id="inc-${i}"class="ri-add-line"></i>
         </div>
         </div>`;
-        quantity= Number(document.querySelector(`#quan-${i}`).textContent);
-        // console.log(quantity);
+        quantity = Number(document.querySelector(`#quan-${i}`).textContent);
         productCount++;
         updateProductCount(productCount);
-        cartProducts.push({'index': i, 'quantity':quantity});
-        // console.log(cartProducts)
-        prices.push(products[i].price);
-        // console.log(prices)
-        totalPrice = prices.reduce((curr, prev) => curr + prev);
-        document.querySelector("#total").innerHTML = totalPrice;
+        cartProducts.push({ 'index': i, 'price': products[i].price, 'quantity': quantity });
+        // console.log(cartProducts);
       }
     }
   })
 }
 addToCart();
-
-function cartModifier(){
-  document.querySelector(`#dec-${i}`).addEventListener('click', function () {
-    quantity = parseInt(document.querySelector(`#quan-${i}`).innerHTML);
-    if (quantity > 1) {
-      quantity -= 1;
-      document.querySelector(`#quan-${i}`).innerHTML = quantity;
-    }
-    else {
-      cartCount -= 1
-      document.querySelector("#cart-count").innerHTML = cartCount;
-      cart.splice(findIndexById(cart, `pro-${i}`), 1);
-      document.querySelector(`#pro-${i}`).remove();
-  
-      if (prices.length > 1) {
-        prices.splice(prices.indexOf(products[i].price), 1);
-        totalPrice = prices.reduce((curr, prev) => curr + prev);
-      }
-      else {
-        prices.splice(prices.indexOf(products[i].price), 1);
-        totalPrice = 0;
-      }
-      document.querySelector("#total").innerHTML = totalPrice;
-    }
-  })
-  document.querySelector(`#inc-${i}`).addEventListener('click', function () {
-    quantity = parseInt(document.querySelector(`#quan-${i}`).innerHTML);
-    if (quantity < 10) {
-      quantity += 1;
-    }
-    else {
-      alert("Quantity cannot be more than 10!")
-    }
-    document.querySelector(`#quan-${i}`).innerHTML = quantity;
-  })
-}
