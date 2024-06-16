@@ -154,6 +154,7 @@ function capitalizer(str) {
 function productFinder(array, targetIndex) {
   return array.find(item => item.index === targetIndex);
 }
+
 // Main Functions
 function createProductElements() {
   var clutter = "";
@@ -180,15 +181,11 @@ function cartToggler() {
     }
   })
 }
-createProductElements();
-cartToggler();
-
 function updateCartValue(arr) {
   let total = 0;
   for (k = 0; k < arr.length; k++) {
     total += (arr[k].price) * (arr[k].quantity);
   }
-  // console.log(total)
   document.querySelector("#total").innerHTML = total;
 }
 function updateProductCount(count) {
@@ -198,18 +195,12 @@ var cartProducts = [];
 var i, quantity;
 var productCount = 0;
 var cartContent = document.querySelector(".cart-content");
-function cartModifier() {
-  console.log("hei")
-}
-var flag= false;
-var decrease;
 function addToCart() {
   var keyExists= false;
   var objIdx;
   document.querySelector('#products').addEventListener('click', function (dets) {
     if (dets.target.classList.contains('add-to-cart')) {
-      // console.log("right after event",cartProducts)
-      flag= true;
+      keyExists= false;
       i = Number(dets.target.dataset.index);
       if(cartProducts.length>0){
         for (let j = 0; j < cartProducts.length; j++) {
@@ -223,16 +214,10 @@ function addToCart() {
           }
         }
       }
-      else{
-        keyExists= false
-      }
-      console.log(keyExists)
       if (keyExists) {
-        // console.log("inside if block",cartProducts)
         if (cartProducts[objIdx].quantity < 10) {
           let q = ++cartProducts[objIdx].quantity;
           document.querySelector(`#quan-${i}`).innerHTML = q;
-          // console.log(cartProducts)
           updateCartValue(cartProducts)
           document.querySelector(`#price-${i}`).innerHTML = `$${q * cartProducts[objIdx].price}`;
         }
@@ -258,39 +243,43 @@ function addToCart() {
         productCount++;
         updateProductCount(productCount);
         cartProducts.push({ 'index': i, 'price': products[i].price, 'quantity': quantity });
-        // console.log("after push else block", cartProducts);
+        updateCartValue(cartProducts);
         cartProducts.forEach(product=>{
-          document.querySelector(`#dec-${product.index}`).addEventListener('click',
-            function(){
-              if(product.quantity==1){
-                --product.quantity
-                cartContent.removeChild(document.querySelector(`#pro-${product.index}`));
-                console.log(product.quantity)
-                cartProducts = cartProducts.filter(obj=> obj.index!== product.index);
-                productCount++;
-                // updateProductCount(productCount);
-              }
-              else if(product.quantity>1){
-                document.querySelector(`#quan-${product.index}`).innerHTML= --product.quantity;
-                console.log(product.quantity)
-                document.querySelector(`#price-${product.index}`).innerHTML = `$${product.quantity*product.price}`;
-                // updateCartValue(cartProducts)
-                // console.log(obj.quantity)
-              }
-            }
-          );
-          document.querySelector(`#inc-${product.index}`).addEventListener('click',
-            function(){
+          function cartModifier(action) {
+            if(action=="increase"){
               if(product.quantity<10){
                 document.querySelector(`#quan-${product.index}`).innerHTML= ++product.quantity;
-                console.log(product.quantity)
                 document.querySelector(`#price-${product.index}`).innerHTML = `$${product.quantity*product.price}`;
-                // updateCartValue(cartProducts)
-                // console.log(obj.quantity)
+                updateCartValue(cartProducts)
               }
               else{
                 alert("Quantity cannot exceed 10!")
               }
+            }
+            else if(action=="decrease"){
+              if(product.quantity==1){
+                --product.quantity
+                cartContent.removeChild(document.querySelector(`#pro-${product.index}`));
+                cartProducts = cartProducts.filter(obj=> obj.index!== product.index);
+                productCount--;
+                updateCartValue(cartProducts)
+                updateProductCount(productCount);
+              }
+              else if(product.quantity>1){
+                document.querySelector(`#quan-${product.index}`).innerHTML= --product.quantity;
+                document.querySelector(`#price-${product.index}`).innerHTML = `$${product.quantity*product.price}`;
+                updateCartValue(cartProducts)
+              }
+            }
+          }
+          document.querySelector(`#dec-${product.index}`).addEventListener('click',
+            function(){
+              cartModifier("decrease");
+            }
+          );
+          document.querySelector(`#inc-${product.index}`).addEventListener('click',
+            function(){
+              cartModifier("increase");
             }
           );
         })
@@ -298,5 +287,6 @@ function addToCart() {
     }
   })
 }
+createProductElements();
+cartToggler();
 addToCart();
-
